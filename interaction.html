@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Mobile Ember - Performance</title>
+
+    <meta name="description" content="Using Ember.js for creating native-like mobile apps">
+    <meta name="author" content="Rob Harper">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+    <link rel="stylesheet" href="css/custom.css">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+    <script src="http://jsbin.com/js/embed.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+
+        <section>
+          <h1>Mobile Ember</h1>
+          <h3 class="fragment">Performance</h3>
+          <p>
+            <small><a href="http://github.com/robharper">Rob Harper</a> / <a href="http://twitter.com/rdharper">@rdharper</a></small>
+          </p>
+        </section>
+
+        <section>
+          <img class="bare" src="http://d1tv73z3fnbnfg.cloudfront.net/Pressly-logo-large.png">
+          <img class="bare" src="assets/star.png">
+
+          <aside class="notes">Get assets from Brian</aside>
+        </section>
+
+        <section>
+          <header><h2>The Bar</h2></header>
+
+          <ul>
+            <li class="fragment">
+              Native Apps
+              <ul class="darken"><li>Responsiveness, <span data-fragment-index="3" class="fragment highlight-blue highlight-bold">Interaction</span></li></ul>
+            </li>
+            <li class="fragment">
+              Desktop Web Apps
+              <ul class="darken"><li>Capability Expectations, Performance</li></ul>
+            </li>
+          </ul>
+
+          <aside class="notes">
+            <ul>
+              <li>Responsiveness: instant response to touch, no stutter</li>
+              <li>Interaction: gestures (swipes), transitions maintain context (animation)</li>
+              <li>Capability: if I can do it on my desktop, I can do it on my phone</li>
+              <li>Performance: mobile devices not nearly as powerful as a desktop (unbalanced, fast JS, slow layout)...not an excuse</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <h2>Use Ember.js to create native app-like...</h2>
+          <ol>
+            <li class="fragment">
+              Interaction
+              <ul class="darken">
+                <li>Responsiveness</li>
+                <li>Animation</li>
+              </ul>
+            </li>
+            <li class="fragment">
+              Performance
+              <ul class="darken">
+                <li>Screaming Crowd</li>
+                <li>View Soup</li>
+                <li>Run Loop</li>
+                <li>Forced Layouts</li>
+              </ul>
+            </li>
+          </ol>
+        </section>
+
+        <section>
+
+          <section>
+            <h2>Interaction: Touch</h2>
+
+            <p>The problem with click...</p>
+            <div class="example">
+              <span class="button" id="click-example-src">Touch Me</span>
+              <span class="button" id="click-example-dest">Click fired</span>
+              <p><small id="click-example-simulated">*simulated on non-touch device</small></p>
+            </div>
+            <p>...click event lags finger by ~300ms <small>1</small></p>
+
+            <footer>
+              <small>1 <a href="https://developers.google.com/mobile/articles/fast_buttons">Google Fast Buttons</a></small>
+            </footer>
+
+            <script>
+            if ('touchstart' in window) {
+              $('#click-example-simulated').hide();
+              $('#click-example-src')
+              .on('touchstart', function() {
+                $('#click-example-src').toggleClass('alt')
+              })
+              .on('click', function() {
+                $('#click-example-dest').toggleClass('alt')
+              });
+            } else {
+              $('#click-example-src')
+              .on('mousedown', function() {
+                $('#click-example-src').toggleClass('alt')
+                setTimeout(function() {
+                  $('#click-example-dest').toggleClass('alt')
+                }, 300);
+              })
+            }
+            </script>
+          </section>
+
+          <section>
+            <h2>The "<code>tap</code>" event</h2>
+            <ul class="fragment">
+              <li>FastClick - <a href="https://github.com/ftlabs/fastclick">ftlabs/fastclick</a></li>
+              <li>jQueryMobile vMouse - <a href="https://github.com/jquery/jquery-mobile/blob/master/js/jquery.mobile.vmouse.js">jquery/jquery-mobile</a></li>
+              <li>Hammer.js - <a href="http://eightmedia.github.io/hammer.js/">eightmedia/hammer.js</a></li>
+            </ul>
+          </section>
+
+          <section>
+            <pre><code data-trim>
+                &lt;a {{action 'doSomething' on='tap'}}>Tap me&lt;/a>
+            </code></pre>
+            <pre><code data-trim class="javascript">
+Ember.LinkView.reopen({
+  eventName: 'tap'
+});
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>But...</h2>
+            <ul class="fragment">
+              <li>Preventing native click</li>
+              <li>Synthetic clicks</li>
+              <li>Gesture interactions</li>
+              <li>Tap to stop scroll</li>
+              <li>Desktop</li>
+              <li>...more</li>
+            </ul>
+            <footer class="fragment">Why is this so hard?</footer>
+
+            <aside class="notes">
+              <ul>
+                <li>Preventing native click - hammer.js leaves follow-on click up to you. If tap dismisses ui (e.g. a modal close) the follow-on click event can land in whatever UI is revealed underneath.</li>
+                <li>Synthetic clicks - many browsers won't open tabs to external links if triggered by generated click event. WinPhone relies on "long-press" for open in new tab</li>
+                <li>Gesture interactions - Complex statemachine interaction can arise between tap and other gestures. Two finger tap, swipe, etc.</li>
+                <li>Tap to stop scroll - Shouldn't trigger a virtual click, should only stop scroll.</li>
+                <li>Desktop - Does your simulated tap gesture play will when no touch events exist?</li>
+                <li>More - Windows Phone, oh boy...</li>
+              </ul>
+            </aside>
+          </section>
+
+
+
+          <section>
+            <h2>Ember can help</h2>
+            <p>Alias when 'tap' is reliable</p>
+            <pre><code class="javascript">
+if (canDependOnTapBehaviour) {
+  // Do something
+  Ember.EventDispatcher.reopen({
+    events: {
+      // All events you wish to handle...
+      // click: 'click'
+      tap: 'click'
+    }
+  });
+}
+            </code></pre>
+          </section>
+      </section>
+    -->
+
+
+      </div>
+
+    </div>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
