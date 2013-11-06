@@ -19,6 +19,16 @@
 }
 
 
+.reveal section .fragment.disappear {
+  display: block;
+  opacity: 1;
+}
+
+.reveal section .fragment.disappear.visible {
+  display: none;
+}
+
+
 .reveal figure {
   margin: 0.5em 0;
 }
@@ -58,7 +68,7 @@
   background-color: #025b63;
 }
 .reveal .timeline-browser {
-  background-color: #027f11;
+  background-color: #6a0600;
 }
 .reveal .clear {
   clear: both;
