@@ -105,11 +105,10 @@
           <h2>Views all the way down</h2>
 
           <p><code class="darken">{{value}}</code>, <code class="darken">{{#if prop}}</code>, and <code class="darken">{{myHelper prop}}</code> all create Views</p>
-          <p class="fragment"><code class="darken">{{unbound}}</code> and <code class="darken">{{#group}}</code> can prevent this</p>
 
           <br />
-
-          <p class="fragment">Unbinding and grouping cut our render time in <em><strong>half</strong></em></p>
+          <p class="fragment"><code class="darken">{{unbound}}</code> and <code class="darken">{{#group}}</code> can prevent this</p>
+          <p class="fragment"><em>&rarr; cut our render time in <strong>half</strong></em></p>
 
           <br />
 
@@ -125,18 +124,24 @@
           <h2>Stay in the Run Loop</h2>
           
           <p>What happens if you run code outside an Ember run loop?</p>
+          <br />
           <p class="fragment">Bindings, promises, and more schedule a run loop via <code class="darken">setTimeout(fn, 0)</code></p>
           
-          <br />
-          <div class="fragment">
-            <div>
+          <div class="fragment" data-fragment-index=1>
+            <div class="fragment disappear" data-fragment-index=2>
+              ... <div class="timeline timeline-js">setTimeout(<strong>fn</strong>, 0)</div><div class="timeline timeline-js"><strong>fn()</strong></div> ...
+            </div>
+            <div class="fragment" data-fragment-index=2>
               ... <div class="timeline timeline-js">setTimeout(<strong>fn</strong>, 0)</div><div class="timeline timeline-browser">paint, reflow</div><div class="timeline timeline-js"><strong>fn()</strong></div> ...
             </div>
-            <p>Control is handed back to the browser - opportunity for jank</p>
           </div>
           <br />
 
           <p class="fragment"><em>Wrap all out-of-Ember event handling in <code class="darken">Ember.run</code></em></p>
+
+          <aside class="notes">
+            <p>Control is handed back to the browser - opportunity for jank</p>
+          </aside>
         </section>
 
 
@@ -174,16 +179,29 @@ fixHeights: function() {
             <h2>Forcing Reflows</h2>
           </header>
 
-          <pre><code class="javascript">
-fixHeights: function() {
-  var el = this.get('element');
-  var originalHeight = el.clientHeight;
-  Ember.run.scheduleOnce('afterRender', function() {
-    el.style.height = (Math.ceil(originalHeight / 20) * 20) + 'px';
-  });
-}.on('didInsertElement')
-          </code></pre>
-          <small class="darken">Stays in the same JS event loop execution! (yay)</small>
+          <div class="fragment">
+            <div class="fragment disappear" data-fragment-index=2>
+              ... <div class="timeline timeline-js">100 reads</div><div class="timeline timeline-browser">paint, reflow</div><div class="timeline timeline-js">100 writes</div> ...
+            </div>
+            <div class="fragment" data-fragment-index=2>
+              <div class="fragment disappear" data-fragment-index=3>
+              ... <div class="timeline timeline-js">100 reads, 100 writes</div> ...
+              </div>
+            </div>
+          </div>
+
+          <div class="fragment" data-fragment-index=3> 
+            <pre><code class="javascript">
+  fixHeights: function() {
+    var el = this.get('element');
+    var originalHeight = el.clientHeight;
+    Ember.run.scheduleOnce('afterRender', function() {
+      el.style.height = (Math.ceil(originalHeight / 20) * 20) + 'px';
+    });
+  }.on('didInsertElement')
+            </code></pre>
+            <small class="darken">Stays in the same JS event loop execution! (yay)</small>
+          </div>
 
           <p class="fragment"><em>Use run loop queues to group DOM reads and writes to minimize reflows without returning control to the browser</em></p>
         </section>
