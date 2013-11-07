@@ -51,7 +51,6 @@
             <small><a href="http://github.com/robharper">Rob Harper</a> / <a href="http://twitter.com/rdharper">@rdharper</a></small>
           </p>
           <img class="bare" src="http://d1tv73z3fnbnfg.cloudfront.net/Pressly-logo-small.png">
-          
         </section>
 
         <section id="the-bar">
@@ -63,7 +62,7 @@
         </section>
 
         <section id="contents">
-          <h2>Trouble in the View Layer</h2>
+          <h2>View Layer Performance</h2>
           <ul>
             <li>Screaming Crowd</li>
             <li>Views all the way down</li>
@@ -72,7 +71,7 @@
           </ul>
 
           <aside class="notes">
-            There are other performance considerations outside of the view layer. For example, too many bindings. However, this presentation only focuses on aspects of performance that affect the rendering and views.
+            There are other performance considerations outside of the view layer - for example, too many bindings. Also, there are lots of rendering-related performance issues not related to Ember - for example, translate3d(0,0,0) makes iOS buttery-smooth but kills Androids. However, this presentation only focuses on aspects of performance that affect the rendering and views specific to Ember.
           </aside>
         </section>
 
@@ -122,11 +121,11 @@
 
         <section id="run-loop">
           <h2>Stay in the Run Loop</h2>
-          
+
           <p>What happens if you run code outside an Ember run loop?</p>
           <br />
           <p class="fragment">Bindings, promises, and more schedule a run loop via <code class="darken">setTimeout(fn, 0)</code></p>
-          
+
           <div class="fragment" data-fragment-index=1>
             <div class="fragment disappear" data-fragment-index=2>
               ... <div class="timeline timeline-js">setTimeout(<strong>fn</strong>, 0)</div><div class="timeline timeline-js"><strong>fn()</strong></div> ...
@@ -191,7 +190,7 @@ fixHeights: function() {
             </div>
           </div>
 
-          <div class="fragment" data-fragment-index=3> 
+          <div class="fragment" data-fragment-index=3>
             <pre><code class="javascript">
   fixHeights: function() {
     var el = this.get('element');
