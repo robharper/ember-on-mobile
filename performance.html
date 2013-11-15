@@ -218,7 +218,7 @@ fixHeights: function() {
   fixHeights: function() {
     var el = this.get('element');
     var originalHeight = el.clientHeight;
-    Ember.run.scheduleOnce('afterRender', function() {
+    Ember.run.schedule('afterRender', function() {
       el.style.height = (Math.ceil(originalHeight / 20) * 20) + 'px';
     });
   }.on('didInsertElement')
@@ -227,6 +227,10 @@ fixHeights: function() {
           </div>
 
           <p class="fragment"><em>Use run loop queues to group DOM reads and writes to minimize reflows without returning control to the browser</em></p>
+
+          <aside class="notes">
+            Thanks to @stefanpenner for pointing out the erroneous usage of scheduleOnce here. schedule is all that's needed and in the end has the same effect.
+          </aside>
         </section>
 
 
