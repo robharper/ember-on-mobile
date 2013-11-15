@@ -50,7 +50,14 @@
           <p>
             <small><a href="http://github.com/robharper">Rob Harper</a> / <a href="http://twitter.com/rdharper">@rdharper</a></small>
           </p>
-          <img class="bare" src="http://d1tv73z3fnbnfg.cloudfront.net/Pressly-logo-small.png">
+          <p>
+            <small>Nov 7, 2013</small>
+          </p>
+          <a href="http://www.pressly.com"><img class="bare" src="http://d1tv73z3fnbnfg.cloudfront.net/Pressly-logo-small.png"></a>
+
+          <aside class="notes">
+            I gave this presentation at the Toronto Ember.js meetup on Nov 7, 2013.
+          </aside>
 
         </section>
 
@@ -58,7 +65,13 @@
           <h2>The Bar</h2>
 
           <aside class="notes">
-            Desktop Web Apps + Native Mobile Apps
+            The bar for mobile web applications is set by desktop web apps and native mobile apps. Generally, this means:
+            <ul>
+              <li>Responsiveness: instant response to touch, no stutter</li>
+              <li>Interaction: gestures (swipes), transitions maintain context (animation)</li>
+              <li>Capability: if I can do it on my desktop, I can do it on my phone</li>
+              <li>Performance: mobile devices not nearly as powerful as a desktop (unbalanced, fast JS, slow layout)...not an excuse</li>
+            </ul>
           </aside>
         </section>
 
@@ -72,7 +85,8 @@
           </ul>
 
           <aside class="notes">
-            There are other performance considerations outside of the view layer - for example, too many bindings. Also, there are lots of rendering-related performance issues not related to Ember - for example, translate3d(0,0,0) makes iOS buttery-smooth but kills Androids. However, this presentation only focuses on aspects of performance that affect the rendering and views specific to Ember.
+            <p>There are other performance considerations outside of the view layer - for example, too many bindings. Also, there are lots of rendering-related performance issues not related to Ember - for example, adding translate3d(0,0,0) to an element before animating makes iOS buttery-smooth but can kill Androids in many circumstances.</p>
+            <p>However, this presentation only focuses on aspects of performance that affect the rendering and views specific to Ember.</p>
           </aside>
         </section>
 
@@ -97,7 +111,11 @@
           </p>
 
           <aside class="notes">
-            The Ember app used for here for profiling is the default Ember starting point JSBin found <a href="http://jsbin.com/ucanam/239/edit">here</a>
+            <p>Ember listens to 27 DOM events at the app level by default. Adding event listeners on (mouse|touch)move on mobile devices can be a very bad idea due to <a href="https://plus.google.com/app/basic/stream/z12oxpsjztabz1wip04cepebireehbbaltc0k">significant impact</a> <a href="https://docs.google.com/document/d/12k_LL_Ot9GjF8zGWP9eI_3IMbSizD72susba0frg44Y/mobilebasic">on performance</a>. However, even outside of these issue, Ember's default behaviour has serious ramifications on memory usage.</p>
+
+            <p>The Ember app used for here for profiling is the default Ember starting point JSBin found <a href="http://jsbin.com/ucanam/239/edit">here</a>. Vanilla Ember chews through 500 kb/s and GCs twice in 30 seconds. Simply removing the worst offenders improves memory consumption over 5x, down to 87 kb/s and no GCs in the same period.</p>
+
+            <p>GCs usually aren't a big deal on a desktop but can really hurt make mobile performance. GCs often come at really bad times - like in the middle of an animated interaction</p>
           </aside>
         </section>
 
@@ -115,7 +133,7 @@
           <p class="fragment"><em>Avoid excessive <code>View</code> creation - do you need to bind?</em></p>
 
           <aside class="notes">
-            Full view instantiation means View allocation, Mixin initialization, bindings, view context creation, render, etc.
+            <p>Nearly all mustaches create Ember.Views. Full view instantiation means View allocation, Mixin initialization, bindings, view context creation, render, etc. This isn't cheap.</p>
           </aside>
         </section>
 
@@ -140,7 +158,8 @@
           <p class="fragment"><em>Wrap all out-of-Ember event handling in <code class="darken">Ember.run</code></em></p>
 
           <aside class="notes">
-            <p>Control is handed back to the browser - opportunity for jank</p>
+            <p>Jumping into a run loop using setTimeout(fn,0) hands control back to the browser - opportunity for jank. By initiating a run loop proactively no setTimeout is needed, control is retained.</p>
+            <p>The worst instance of this we saw was on an orientation change event. The event was triggered, we set some property values intended to bind their way to visual changes on the DOM. No Ember.run meant control was handed back to the browser before bindings were sync'd. The browser initiated the entire rotation animation effect before setTimeout(fn,0) was handled. The result was a broken, janky experience.</p>
           </aside>
         </section>
 
@@ -159,6 +178,9 @@ fixHeights: function() {
 }.on('didInsertElement')
           </code></pre>
           <p class="fragment"><code class="darken">x 100</code></p>
+          <aside class="notes">
+            <p>A detailed description of this particular performance optimization can be found <a href="http://robharper.github.io/2013/05/26/2013-05-26-avoiding-reflows-using-embers-runloop/">here</a>.</p>
+          </aside>
         </section>
 
         <section>
