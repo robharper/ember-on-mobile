@@ -111,6 +111,24 @@
 }
 
 
+.reveal section table {
+  font-size: 0.8em;
+  width: 100%;
+  margin: 1em 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.reveal section table thead {
+  color: #bbb;
+  font-weight: bold;
+  background-color: #3F3F3F;
+}
+.reveal section table pre {
+  font-size: inherit;
+  margin: 0;
+}
+
+
 
 .reveal .slides section .fragment.highlight-bold.visible {
   font-weight: bold;

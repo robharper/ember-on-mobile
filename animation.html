@@ -289,10 +289,11 @@ newView.one('didInsertElement', function() {
             <h2>Effects</h2>
           </header>
 
+          <p>By name...</p>
           <pre><code data-trim>{{outlet viewClass="App.MyAnimatedContainer" effect="drop"}}</code></pre>
 
           <div class="fragment">
-            <p>...or maybe</p>
+            <p>...or by view name</p>
             <pre><code data-trim class="javascript">
 App.MyAnimatedContainer.defineTransition({
   from: 'some-parent-view',
@@ -321,10 +322,10 @@ App.MyAnimatedContainer.defineTransition({
             <h2>Effects</h2>
           </header>
 
-          <p>...or</p>
+          <p>Delegate to child views...</p>
           <pre><code data-trim class="javascript">
 FadingView = Ember.Mixin.create({
-  dismiss: function() {
+  reveal: function() {
     var self = this;
     return new Ember.RSVP.Promise( function(resolve, reject) {
       self.$().hide().fadeIn(500, resolve);
@@ -340,6 +341,30 @@ FadingView = Ember.Mixin.create({
 
 MyAlertModal = Ember.View.extend( FadingView, { /* ... */ });
           </code></pre>
+
+          <aside class="notes">
+          </aside>
+        </section>
+
+        <section>
+          <header>
+            <h2>Effects</h2>
+          </header>
+
+          <p>...or CSS3 Transitions</p>
+          <table>
+            <thead>
+              <tr>
+                <td>Enter / Leave</td><td>Start</td><td>During</td>
+              </tr>
+            </thead>
+            <tr>
+              <td>Enter</td><td><pre>em-animate em-enter</pre></td><td><pre>em-enter-active</pre></td>
+            </tr>
+            <tr>
+              <td>Leave</td><td><pre>em-animate em-leave</pre></td><td><pre>em-leave-active</pre></td>
+            </tr>
+          </table>
 
           <aside class="notes">
           </aside>
@@ -364,12 +389,20 @@ MyAlertModal = Ember.View.extend( FadingView, { /* ... */ });
             <h2>Collections</h2>
           </header>
           
-          <a class="jsbin jsbin-embed" href="http://jsbin.com/AKuYOKO/3/embed?live,javascript&height=400px">Edit this example</a>
+          <a class="jsbin jsbin-embed" href="http://jsbin.com/AKuYOKO/4/embed?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
           </aside>
         </section>
 
+        <section>
+          <h2>Caveats and Gotchas</h2>
+          <ul>
+            <li>Container Destruction: Active animations will interact with destroyed views</li>
+            <li>Animation Queues: Cancel active animation when a second is triggered</li>
+            <li>Initial State: How should view / collection items start in container be handled?</li>
+          </ul>
+        </section>
 
         <section>
           <h2>Wrapping Up</h2>
