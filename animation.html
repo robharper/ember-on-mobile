@@ -105,21 +105,21 @@
           <header>
             <h2 class="as-is">Ember.ContainerView</h2>
           </header>
-          
+
           <pre><code class="javascript">
 Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
   /**
-    If you would like to display a single view in your ContainerView, 
-    you can set its currentView property. When the currentView property 
+    If you would like to display a single view in your ContainerView,
+    you can set its currentView property. When the currentView property
     is set to a view instance, it will be added to the ContainerView. If
     the currentView property is later changed to a different view, the
-    new view will replace the old view. If currentView is set to null, 
+    new view will replace the old view. If currentView is set to null,
     the last currentView will be removed.
-  */  
+  */
   currentView: null
 });
           </code></pre>
-          
+
           <aside class="notes">
             ContainerView - it manages the lifecycle of views within it: added views are placed
             on the DOM and rendered; removed views are removed from the DOM and destroyed. Its implementation
@@ -131,7 +131,7 @@ Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
           <header>
             <h2 class="as-is">Ember.ContainerView</h2>
           </header>
-          
+
           <a class="jsbin jsbin-embed" href="http://jsbin.com/evofESi/8/edit?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
@@ -143,7 +143,7 @@ Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
           <header>
             <h2>Default Behaviour</h2>
           </header>
-          
+
           <p>Old View</p>
           <pre><code data-trim class="javascript">
             container.removeObject( oldCurrentView );
@@ -153,7 +153,7 @@ Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
           <pre><code data-trim class="javascript">
             container.addObject( newCurrentView );
           </code></pre>
-                    
+
           <aside class="notes">
             We can boil the parts of ContainerView's handling of currentView that we care about down to these two lines of code. Remember that the ContainerView is managed just like an array. Views added to the array are added to the DOM; views removed from the array are removed from the DOM.
           </aside>
@@ -163,7 +163,7 @@ Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
           <header>
             <h2>Default Behaviour</h2>
           </header>
-          
+
           <a class="jsbin jsbin-embed" href="http://jsbin.com/eJaJujI/3/edit?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
@@ -176,7 +176,7 @@ Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
           <header>
             <h2>Deferring Destruction</h2>
           </header>
-          
+
           <p>Old View</p>
           <pre><code data-trim class="javascript">
 Ember.run.later( function() {
@@ -191,7 +191,7 @@ Ember.run.later( function() {
 
           <br/>
           <p class="fragment">Recall that <code>ContainerView</code> manages an array of views</p>
-          
+
           <aside class="notes">
             <p>Let's make a simple change to the removal of the view being dismissed. Let's defer that for 2 seconds.</p>
             <p>This is fairly useless but illustrates an important point about the ContainerView: recall that it's an array. Just because currentView only allowed to be a single view at any time, the ContainerView can contain as many views as we like. This is arguably the most important point in this presentation.</p>
@@ -202,11 +202,11 @@ Ember.run.later( function() {
           <header>
             <h2>Deferring Destruction</h2>
           </header>
-          
+
           <a class="jsbin jsbin-embed" href="http://jsbin.com/uvUxEs/2/embed?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
-            Notice how the view being removed now sticks around for 2 seconds before being destroyed.  Clicking quickly can build up a whole queue of views to be destroyed. 
+            Notice how the view being removed now sticks around for 2 seconds before being destroyed.  Clicking quickly can build up a whole queue of views to be destroyed.
           </aside>
         </section>
 
@@ -215,7 +215,7 @@ Ember.run.later( function() {
           <header>
             <h2>Fade Away</h2>
           </header>
-          
+
           <p>Old View</p>
           <pre><code data-trim class="javascript">
 oldCurrentView.$().fadeOut( 2000, function() {
@@ -227,7 +227,7 @@ oldCurrentView.$().fadeOut( 2000, function() {
           <pre><code data-trim class="javascript">
             container.addObject( newCurrentView );
           </code></pre>
-          
+
           <aside class="notes">
             Change the deferred removal to a fade out then deferred removal.
           </aside>
@@ -237,7 +237,7 @@ oldCurrentView.$().fadeOut( 2000, function() {
           <header>
             <h2>Fade Away</h2>
           </header>
-          
+
           <a class="jsbin jsbin-embed" href="http://jsbin.com/OmOZIyu/2/embed?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
@@ -250,7 +250,7 @@ oldCurrentView.$().fadeOut( 2000, function() {
           <header>
             <h2>Fade In</h2>
           </header>
-          
+
           <p>Old View</p>
           <pre><code data-trim class="javascript">
 oldCurrentView.$().fadeOut( 2000, function() {
@@ -265,7 +265,7 @@ newView.one('didInsertElement', function() {
   newView.$().hide().fadeIn(2000);
 });
           </code></pre>
-          
+
           <aside class="notes">
             Adding a fade in will allow us to complete a cross-fade effect. Two things to note:
             <ol>
@@ -279,7 +279,7 @@ newView.one('didInsertElement', function() {
           <header>
             <h2>Fade In</h2>
           </header>
-          
+
           <a class="jsbin jsbin-embed" href="http://jsbin.com/ijAFoFa/3/embed?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
@@ -292,7 +292,7 @@ newView.one('didInsertElement', function() {
           <aside class="notes">
             Our ContainerView can easily handle fading in and out modal views by binding to currentView. But what about route transitions?
           </aside>
-        </section>        
+        </section>
 
         <section>
           <header>
@@ -301,7 +301,7 @@ newView.one('didInsertElement', function() {
 
           <pre><code data-trim>{{outlet viewClass="App.MyAnimatedContainer"}}</code></pre>
           <small class="darken">Routes and Modals</small>
-        
+
           <aside class="notes">
             <p>Luckily all an outlet is is a ContainerView whose currentView is managed by the Ember Router. By specifying the viewClass to use in an outlet we can instruct Ember to use our subclass and our route changes start animating. This also has the effect of animating on the browser's back button - just another route transition.</p>
             <p>Using outlets for modal view containers is also a common pattern and works the same way</p>
@@ -335,7 +335,7 @@ App.MyAnimatedContainer.defineTransition({
 })
             </code></pre>
           </div>
-        
+
 
           <aside class="notes">
             <p>Before discussing some of the gotchas, let's add features!</p>
@@ -396,7 +396,7 @@ MyAlertModal = Ember.View.extend( FadingView, { /* ... */ });
           </table>
 
           <aside class="notes">
-            <p>CSS3: Take an Angular ng-animate approach and use css classes for animation setup and execution - my preferred approach</p>
+            <p>CSS3: Take an Angular ng-animate approach and use css classes for animation setup and execution - my preferred approach. The details of the effect are entirely captured in CSS, nothing in JS.</p>
           </aside>
         </section>
 
@@ -405,12 +405,13 @@ MyAlertModal = Ember.View.extend( FadingView, { /* ... */ });
           <header>
             <h2>Collections</h2>
           </header>
-      
+
           <p>Instead of animating <code class="darken">currentView</code>, animate all the views!</p>
           <br>
           <p>Override CollectionView's <code class="darken">arrayWillChange</code> and <code class="darken">arrayDidChange</code></p>
-              
+
           <aside class="notes">
+            Getting collections ({{each}}) to work requires extending the concepts we applied when changes occur to the single currentView property to a changing array of views.
           </aside>
         </section>
 
@@ -418,10 +419,15 @@ MyAlertModal = Ember.View.extend( FadingView, { /* ... */ });
           <header>
             <h2>Collections</h2>
           </header>
-          
+
           <a class="jsbin jsbin-embed" href="http://jsbin.com/AKuYOKO/4/embed?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
+            <ul>
+              <li>I've extracted the code to reveal and dismiss views into helper methods</li>
+              <li>A large amount of the code here is copied from the base implementation of the array change methods. The current implementation doesn't provide hooks to allow us to manipulate the way views are added and removed from the DOM so we have to override the entire method. Breaking up this logic into overridable template methods is arguably the easiest first step for Ember to support animation in the core.</li>
+              <li>One complicating factor in the implementation is the need to keep a parallel array of views. In the base implementation of the CollectionView the list of child views matched the array content model 1:1. However since we are deferring the removal of views to animate out this relationship is broken. If the content array removes the 3rd item, we need to know which view represents that item.</li>
+            </ul>
           </aside>
         </section>
 
@@ -433,7 +439,16 @@ MyAlertModal = Ember.View.extend( FadingView, { /* ... */ });
             <li>Animation Queues: <span class="darken">Cancel active animation when a second is triggered</span></li>
             <li>Initial State: <span class="darken">How should view / collection items that start in container be handled?</span></li>
             <li>Deferred destruction: <span class="darken">Two views on the DOM at once</span></li>
+            <li>Performance: <span class="darken">Child view creation can cause reveal animation to be choppy</span></li>
           </ul>
+
+          <aside class="notes">
+            <ul>
+              <li>Container Destruction: If the container is destroyed during an animation it will short circuit the child view destruction. When the animation complete timeout fires both the container and the child view are destroyed. Need to guard.</li>
+              <li>Animation Queues: Without canceling you get the effect as we saw earlier with several views animating at once. Canceling can be a pain using CSS3 transitions</li>
+              <li>Initial State: Initial view contents should probably not animate in. Adding views in arrayDidChange should check to see if container is on the DOM yet and if not, don't animate children in.</li>
+              <li>Deferred destruction: Often not an issue but could be. For example, a 3rd party plugin that expects only to be in the DOM once, such as a commenting widget.</li>
+              <li>Performance: If the inbound view contains an iframe that must then load, the animation will stutter terribly. This may necessitate a whole new set of lifecycle signals around animation (didStart, didComplete, didCancel, etc)</li>
         </section>
 
         <section>
