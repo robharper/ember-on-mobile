@@ -20,7 +20,6 @@
 
 
 .reveal section .fragment.disappear {
-  display: block;
   opacity: 1;
 }
 
