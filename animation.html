@@ -132,19 +132,7 @@ Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
 
         <section>
           <header>
-            <h2 class="as-is">Ember.ContainerView</h2>
-          </header>
-
-          <a class="jsbin jsbin-embed" href="http://jsbin.com/evofESi/8/edit?live,javascript&height=400px">Edit this example</a>
-
-          <aside class="notes">
-            Here's the simple test harness we'll use as we develop our animation capabilities. We'll subclass ContainerView and get to work. Clicking within the dotted box will advance through steps of the test case, the test case code for the step will be shown below.
-          </aside>
-        </section>
-
-        <section>
-          <header>
-            <h2>Default Behaviour</h2>
+            <h2>CurrentView Default Behaviour</h2>
           </header>
 
           <p>Old View</p>
@@ -154,7 +142,7 @@ Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
 
           <p>New View</p>
           <pre><code data-trim class="javascript">
-            container.addObject( newCurrentView );
+            container.pushObject( newCurrentView );
           </code></pre>
 
           <aside class="notes">
@@ -164,13 +152,15 @@ Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
 
         <section>
           <header>
-            <h2>Default Behaviour</h2>
+            <h2>Reimplementing Default Behaviour</h2>
           </header>
 
           <a class="jsbin jsbin-embed" href="http://jsbin.com/eJaJujI/3/edit?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
-            Here's our ContainerView subclass with currentView handling reimplemented (copied).
+            <p>Here's the simple test harness we'll use as we develop our animation capabilities. We'll subclass ContainerView and get to work. Clicking within the dotted box will advance through steps of the test case, the test case code for the step will be shown below.</p>
+
+            <p>Here's our ContainerView subclass with currentView handling reimplemented (copied).</p>
           </aside>
         </section>
 
@@ -189,7 +179,7 @@ Ember.run.later( function() {
 
           <p>New View</p>
           <pre><code data-trim class="javascript">
-            container.addObject( newCurrentView );
+            container.pushObject( newCurrentView );
           </code></pre>
 
           <br/>
@@ -228,7 +218,7 @@ oldCurrentView.$().fadeOut( 2000, function() {
 
           <p>New View</p>
           <pre><code data-trim class="javascript">
-            container.addObject( newCurrentView );
+            container.pushObject( newCurrentView );
           </code></pre>
 
           <aside class="notes">
@@ -302,7 +292,7 @@ newView.one('didInsertElement', function() {
             <h2>Outlets</h2>
           </header>
 
-          <pre><code data-trim>{{outlet viewClass="App.MyAnimatedContainer"}}</code></pre>
+          <pre><code data-trim>{{outlet view="myAnimatedContainer"}}</code></pre>
           <small class="darken">Routes and Modals</small>
 
           <aside class="notes">
@@ -314,23 +304,53 @@ newView.one('didInsertElement', function() {
 
         <section>
           <header>
+            <h2>Collections</h2>
+          </header>
+
+          <p>Instead of animating <code class="darken">currentView</code>, animate all the views!</p>
+          <br>
+          <p>Override CollectionView's <code class="darken">arrayWillChange</code> and <code class="darken">arrayDidChange</code></p>
+
+          <aside class="notes">
+            Getting collections ({{each}}) to work requires extending the concepts we applied when changes occur to the single currentView property to a changing array of views.
+          </aside>
+        </section>
+
+        <section>
+          <header>
+            <h2>Collections</h2>
+          </header>
+
+          <a class="jsbin jsbin-embed" href="http://jsbin.com/AKuYOKO/4/embed?live,javascript&height=400px">Edit this example</a>
+
+          <aside class="notes">
+            <ul>
+              <li>I've extracted the code to reveal and dismiss views into helper methods</li>
+              <li>A large amount of the code here is copied from the base implementation of the array change methods. The current implementation doesn't provide hooks to allow us to manipulate the way views are added and removed from the DOM so we have to override the entire method. Breaking up this logic into overridable template methods is arguably the easiest first step for Ember to support animation in the core.</li>
+              <li>One complicating factor in the implementation is the need to keep a parallel array of views. In the base implementation of the CollectionView the list of child views matched the array content model 1:1. However since we are deferring the removal of views to animate out this relationship is broken. If the content array removes the 3rd item, we need to know which view represents that item.</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <header>
             <h2>Effects</h2>
           </header>
 
           <p>Whole container...</p>
-          <pre><code data-trim>{{outlet viewClass="App.MyAnimatedContainer" effect="drop"}}</code></pre>
+          <pre><code data-trim>{{outlet view="myAnimatedContainer" effect="drop"}}</code></pre>
 
           <div class="fragment">
             <p>...or by view</p>
             <pre><code data-trim class="javascript">
-App.MyAnimatedContainer.defineTransition({
+MyAnimatedContainer.defineTransition({
   from: 'some-parent-view',
   to: 'some-child-view',
   effect: 'slideLeft',
   duration: 500
 });
 
-App.MyAnimatedContainer.defineTransition({
+MyAnimatedContainer.defineTransition({
   from: 'some-child-view',
   to: 'some-parent-view',
   effect: 'slideRight',
@@ -361,7 +381,7 @@ FadingView = Ember.Mixin.create({
     return new Ember.RSVP.Promise( function(resolve, reject) {
       self.$().hide().fadeIn(500, resolve);
     });
-  }
+  },
   dismiss: function() {
     var self = this;
     return new Ember.RSVP.Promise( function(resolve, reject) {
@@ -405,48 +425,18 @@ MyAlertModal = Ember.View.extend( FadingView, { /* ... */ });
 
 
         <section>
-          <header>
-            <h2>Collections</h2>
-          </header>
-
-          <p>Instead of animating <code class="darken">currentView</code>, animate all the views!</p>
-          <br>
-          <p>Override CollectionView's <code class="darken">arrayWillChange</code> and <code class="darken">arrayDidChange</code></p>
-
-          <aside class="notes">
-            Getting collections ({{each}}) to work requires extending the concepts we applied when changes occur to the single currentView property to a changing array of views.
-          </aside>
-        </section>
-
-        <section>
-          <header>
-            <h2>Collections</h2>
-          </header>
-
-          <a class="jsbin jsbin-embed" href="http://jsbin.com/AKuYOKO/4/embed?live,javascript&height=400px">Edit this example</a>
-
-          <aside class="notes">
-            <ul>
-              <li>I've extracted the code to reveal and dismiss views into helper methods</li>
-              <li>A large amount of the code here is copied from the base implementation of the array change methods. The current implementation doesn't provide hooks to allow us to manipulate the way views are added and removed from the DOM so we have to override the entire method. Breaking up this logic into overridable template methods is arguably the easiest first step for Ember to support animation in the core.</li>
-              <li>One complicating factor in the implementation is the need to keep a parallel array of views. In the base implementation of the CollectionView the list of child views matched the array content model 1:1. However since we are deferring the removal of views to animate out this relationship is broken. If the content array removes the 3rd item, we need to know which view represents that item.</li>
-            </ul>
-          </aside>
-        </section>
-
-        <section>
           <h2>Caveats and Gotchas</h2>
           <h4>not quite production ready yet...</h4>
           <ul>
             <li class="fragment">Container Destruction: <span class="darken">Animations could interact with destroyed views</span></li>
-            <li class="fragment">Animation Queues: <span class="darken">Cancel active animation when a second is triggered</span></li>
+            <li class="fragment">Animation Queues: <span class="darken">Jump to the end of active animation when a second is triggered</span></li>
             <li class="fragment">Initial State: <span class="darken">How should view / collection items that start in container be handled?</span></li>
           </ul>
 
           <aside class="notes">
             <ul>
               <li>Container Destruction: If the container is destroyed during an animation it will short circuit the child view destruction. When the animation complete timeout fires both the container and the child view are destroyed. Need to guard.</li>
-              <li>Animation Queues: Without canceling you get the effect as we saw earlier with several views animating at once. Canceling can be a pain using CSS3 transitions</li>
+              <li>Animation Queues: Without this you get the effect as we saw earlier with several views animating at once. Canceling can be a pain using CSS3 transitions</li>
               <li>Initial State: Initial view contents should probably not animate in. Adding views in arrayDidChange should check to see if container is on the DOM yet and if not, don't animate children in.</li>
             </ul>
           </aside>
@@ -476,8 +466,8 @@ MyAlertModal = Ember.View.extend( FadingView, { /* ... */ });
             <li class="fragment">Manipulating view lifecycle in a ContainerView can be easy...</li>
             <li class="fragment">...but it means overwriting existing functions, copy pasta</li>
             <br />
-            <li class="fragment">Adding all sorts of animation to your Ember app can be easy...</li>
-            <li class="fragment">...but framework support is not trivial</li>
+            <li class="fragment">Adding animation to your Ember app can be easy...</li>
+            <li class="fragment">...but animation as part of the Ember is not trivial</li>
           </ul>
           <footer class="fragment">
             Robust view lifecycle with deferred support in Ember core &rarr; implement animation support with better building blocks
