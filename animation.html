@@ -44,57 +44,63 @@
       <div class="slides">
 
         <section>
-          <h1>Mobile Ember</h1>
-          <h3 class="fragment">Animation</h3>
+          <header>
+            <h1>Animating Ember</h1>
+            <h3>From the beginning</h3>
+          </header>
           <p>
             <small><a href="http://github.com/robharper">Rob Harper</a> / <a href="http://twitter.com/rdharper">@rdharper</a></small>
           </p>
+          <p>
+            <small>Jan 9, 2014</small>
+          </p>
+          <a href="http://www.pressly.com"><img class="bare" src="http://d1tv73z3fnbnfg.cloudfront.net/Pressly-logo-small.png"></a>
+
+          <footer class="darken">Press <code>s</code> to see presentation notes</footer>
         </section>
 
         <section>
-          <img class="bare" src="http://d1tv73z3fnbnfg.cloudfront.net/Pressly-logo-large.png">
-          <img class="bare" src="assets/star.png">
-
-          <aside class="notes">Get assets from Brian</aside>
-        </section>
-
-        <section>
-          <header><h2>The Bar</h2></header>
-
-          <ul>
-            <li class="fragment">
-              Native Apps
-              <ul class="darken"><li>Responsiveness, <span data-fragment-index="3" class="fragment highlight-blue highlight-bold">Interaction</span></li></ul>
-            </li>
-            <li class="fragment">
-              Desktop Web Apps
-              <ul class="darken"><li>Capability Expectations, Performance</li></ul>
-            </li>
-          </ul>
+          <header>
+            <h2>
+              Why
+              <span class="fragment" data-fragment-index=2><span class="fragment disappear" data-fragment-index=3>bother?</span></span>
+              <span class="fragment" data-fragment-index=3>us?</span>
+            </h2>
+          </header>
 
           <aside class="notes">
+            Why bother?
             <ul>
-              <li>Responsiveness: instant response to touch, no stutter</li>
-              <li>Interaction: gestures (swipes), transitions maintain context (animation)</li>
-              <li>Capability: if I can do it on my desktop, I can do it on my phone</li>
-              <li>Performance: mobile devices not nearly as powerful as a desktop (unbalanced, fast JS, slow layout)...not an excuse</li>
+              <li>Animation is a requirement to make a web app feel like a native app on a mobile device</li>
+              <li>Animations help the user preserve context and help show relationships between application states and actions</li>
+            </ul>
+            Why us?
+            <ul>
+              <li>Ember-animated-outlet is a great solution for a set of animation needs (route transitions)</li>
+              <li>Adding animation to the core library <a href="http://discuss.emberjs.com/t/animation-support-in-ember-1-1/1977">has been discussed</a>, but it's not trivial to design well</li>
+              <li>But at the app level, it's not so hard</li>
             </ul>
           </aside>
         </section>
 
         <section>
           <header>
-            <h2>Animation</h2>
-            <h5>from first principals</h5>
+            <h2>Animation Goals</h2>
           </header>
           <ul>
-            <li>Route Transitions <small><code class="darken fragment" data-fragment-index="1">{{outlet}}</code></small></li>
+            <li>Route Transitions <span class="darken">(back button)</span> <small><code class="darken fragment" data-fragment-index="1">{{outlet}}</code></small></li>
             <li>Modals <small><code class="darken fragment" data-fragment-index="1">ContainerView or {{outlet}}</code></small></li>
-            <li>...any view coming in or going out <small><code class="darken fragment" data-fragment-index="1">{{each}}</code></small></li>
+            <li>...any view coming or going <small><code class="darken fragment" data-fragment-index="1">CollectionView or {{each}}</code></small></li>
           </ul>
-          <footer class="fragment darken">Can't we just use Ember-Animated-Outlet?</footer> 
 
           <aside class="notes">
+            <ul>
+              <li>Route transitions: Navigating data hierarchies complete with back button support</li>
+              <li>Modals: Reveal effects</li>
+              <li>Lists: deleted items slide away</li>
+            </ul>
+            <p>Implementing all of these boil down to a single view class: ContainerView. Outlets are containers in which the current route's view is rendered. Lists are CollectionViews, subclasses of a container.</p>
+            <p>Let's start with route animation and modals</p>
           </aside>
         </section>
 
@@ -102,43 +108,33 @@
           <header>
             <h2 class="as-is">Ember.ContainerView</h2>
           </header>
-          
+
           <pre><code class="javascript">
 Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
   /**
-    If you would like to display a single view in your ContainerView, 
-    you can set its currentView property. When the currentView property 
+    If you would like to display a single view in your ContainerView,
+    you can set its currentView property. When the currentView property
     is set to a view instance, it will be added to the ContainerView. If
     the currentView property is later changed to a different view, the
-    new view will replace the old view. If currentView is set to null, 
+    new view will replace the old view. If currentView is set to null,
     the last currentView will be removed.
-  */  
+  */
   currentView: null
 });
           </code></pre>
-          
+
           <aside class="notes">
-            Every case boils down to the ContainerView - it manages the lifecycle of views within it: added views are placed
-            on the DOM and rendered; removed views are removed from the DOM and destroyed.
+            ContainerView - it manages the lifecycle of views within it: added views are placed
+            on the DOM and rendered; removed views are removed from the DOM and destroyed. Its implementation
+            has a contains a little sugar for managing a single "currentView" using property binding.
           </aside>
         </section>
 
         <section>
           <header>
-            <h2 class="as-is">Ember.ContainerView</h2>
+            <h2>CurrentView Default Behaviour</h2>
           </header>
-          
-          <a class="jsbin jsbin-embed" href="http://jsbin.com/evofESi/8/edit?live,javascript&height=400px">Edit this example</a>
 
-          <aside class="notes">
-          </aside>
-        </section>
-
-        <section>
-          <header>
-            <h2>Default Behaviour</h2>
-          </header>
-          
           <p>Old View</p>
           <pre><code data-trim class="javascript">
             container.removeObject( oldCurrentView );
@@ -146,21 +142,25 @@ Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
 
           <p>New View</p>
           <pre><code data-trim class="javascript">
-            container.addObject( newCurrentView );
+            container.pushObject( newCurrentView );
           </code></pre>
-                    
+
           <aside class="notes">
+            We can boil the parts of ContainerView's handling of currentView that we care about down to these two lines of code. Remember that the ContainerView is managed just like an array. Views added to the array are added to the DOM; views removed from the array are removed from the DOM.
           </aside>
         </section>
 
         <section>
           <header>
-            <h2>Default Behaviour</h2>
+            <h2>Reimplementing Default Behaviour</h2>
           </header>
-          
+
           <a class="jsbin jsbin-embed" href="http://jsbin.com/eJaJujI/3/edit?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
+            <p>Here's the simple test harness we'll use as we develop our animation capabilities. We'll subclass ContainerView and get to work. Clicking within the dotted box will advance through steps of the test case, the test case code for the step will be shown below.</p>
+
+            <p>Here's our ContainerView subclass with currentView handling reimplemented (copied).</p>
           </aside>
         </section>
 
@@ -169,7 +169,7 @@ Ember.ContainerView = Ember.View.extend(Ember.MutableArray, {
           <header>
             <h2>Deferring Destruction</h2>
           </header>
-          
+
           <p>Old View</p>
           <pre><code data-trim class="javascript">
 Ember.run.later( function() {
@@ -179,10 +179,15 @@ Ember.run.later( function() {
 
           <p>New View</p>
           <pre><code data-trim class="javascript">
-            container.addObject( newCurrentView );
+            container.pushObject( newCurrentView );
           </code></pre>
-          
+
+          <br/>
+          <p class="fragment">Recall that <code>ContainerView</code> manages an array of views</p>
+
           <aside class="notes">
+            <p>Let's make a simple change to the removal of the view being dismissed. Let's defer that for 2 seconds.</p>
+            <p>This is fairly useless but illustrates an important point about the ContainerView: recall that it's an array. Just because currentView only allowed to be a single view at any time, the ContainerView can contain as many views as we like. This is arguably the most important point in this presentation.</p>
           </aside>
         </section>
 
@@ -190,10 +195,11 @@ Ember.run.later( function() {
           <header>
             <h2>Deferring Destruction</h2>
           </header>
-          
+
           <a class="jsbin jsbin-embed" href="http://jsbin.com/uvUxEs/2/embed?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
+            Notice how the view being removed now sticks around for 2 seconds before being destroyed.  Clicking quickly can build up a whole queue of views to be destroyed.
           </aside>
         </section>
 
@@ -202,7 +208,7 @@ Ember.run.later( function() {
           <header>
             <h2>Fade Away</h2>
           </header>
-          
+
           <p>Old View</p>
           <pre><code data-trim class="javascript">
 oldCurrentView.$().fadeOut( 2000, function() {
@@ -212,10 +218,11 @@ oldCurrentView.$().fadeOut( 2000, function() {
 
           <p>New View</p>
           <pre><code data-trim class="javascript">
-            container.addObject( newCurrentView );
+            container.pushObject( newCurrentView );
           </code></pre>
-          
+
           <aside class="notes">
+            Change the deferred removal to a fade out then deferred removal.
           </aside>
         </section>
 
@@ -223,7 +230,7 @@ oldCurrentView.$().fadeOut( 2000, function() {
           <header>
             <h2>Fade Away</h2>
           </header>
-          
+
           <a class="jsbin jsbin-embed" href="http://jsbin.com/OmOZIyu/2/embed?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
@@ -236,7 +243,7 @@ oldCurrentView.$().fadeOut( 2000, function() {
           <header>
             <h2>Fade In</h2>
           </header>
-          
+
           <p>Old View</p>
           <pre><code data-trim class="javascript">
 oldCurrentView.$().fadeOut( 2000, function() {
@@ -251,8 +258,13 @@ newView.one('didInsertElement', function() {
   newView.$().hide().fadeIn(2000);
 });
           </code></pre>
-          
+
           <aside class="notes">
+            Adding a fade in will allow us to complete a cross-fade effect. Two things to note:
+            <ol>
+              <li>We have to wait until the new view receives didInsertElement. Until then it is not on the DOM and there isn't an element to fade in</li>
+              <li>We need to use a little css to position the views ontop of each other</li>
+            </ol>
           </aside>
         </section>
 
@@ -260,48 +272,85 @@ newView.one('didInsertElement', function() {
           <header>
             <h2>Fade In</h2>
           </header>
-          
+
           <a class="jsbin jsbin-embed" href="http://jsbin.com/ijAFoFa/3/embed?live,javascript&height=400px">Edit this example</a>
 
           <aside class="notes">
+            Quick and dirty cross-fading ContainerView in a few lines of code. It's not production ready because there are a number of edge cases and gotchas to consider (covered later) but it's functional.
           </aside>
         </section>
 
         <section>
-            <h2>Now What?</h2>
-        </section>        
+          <h2>Now What?</h2>
+          <aside class="notes">
+            Our ContainerView can easily handle fading in and out modal views by binding to currentView. But what about route transitions?
+          </aside>
+        </section>
 
         <section>
           <header>
             <h2>Outlets</h2>
           </header>
 
-          <pre><code data-trim>{{outlet viewClass="App.MyAnimatedContainer"}}</code></pre>
+          <pre><code data-trim>{{outlet view="myAnimatedContainer"}}</code></pre>
           <small class="darken">Routes and Modals</small>
-        
+
           <aside class="notes">
+            <p>Luckily all an outlet is is a ContainerView whose currentView is managed by the Ember Router. By specifying the viewClass to use in an outlet we can instruct Ember to use our subclass and our route changes start animating. This also has the effect of animating on the browser's back button - just another route transition.</p>
+            <p>Using outlets for modal view containers is also a common pattern and works the same way</p>
           </aside>
         </section>
 
 
         <section>
           <header>
+            <h2>Collections</h2>
+          </header>
+
+          <p>Instead of animating <code class="darken">currentView</code>, animate all the views!</p>
+          <br>
+          <p>Override CollectionView's <code class="darken">arrayWillChange</code> and <code class="darken">arrayDidChange</code></p>
+
+          <aside class="notes">
+            Getting collections ({{each}}) to work requires extending the concepts we applied when changes occur to the single currentView property to a changing array of views.
+          </aside>
+        </section>
+
+        <section>
+          <header>
+            <h2>Collections</h2>
+          </header>
+
+          <a class="jsbin jsbin-embed" href="http://jsbin.com/AKuYOKO/4/embed?live,javascript&height=400px">Edit this example</a>
+
+          <aside class="notes">
+            <ul>
+              <li>I've extracted the code to reveal and dismiss views into helper methods</li>
+              <li>A large amount of the code here is copied from the base implementation of the array change methods. The current implementation doesn't provide hooks to allow us to manipulate the way views are added and removed from the DOM so we have to override the entire method. Breaking up this logic into overridable template methods is arguably the easiest first step for Ember to support animation in the core.</li>
+              <li>One complicating factor in the implementation is the need to keep a parallel array of views. In the base implementation of the CollectionView the list of child views matched the array content model 1:1. However since we are deferring the removal of views to animate out this relationship is broken. If the content array removes the 3rd item, we need to know which view represents that item.</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <header>
             <h2>Effects</h2>
           </header>
 
-          <pre><code data-trim>{{outlet viewClass="App.MyAnimatedContainer" effect="drop"}}</code></pre>
+          <p>Whole container...</p>
+          <pre><code data-trim>{{outlet view="myAnimatedContainer" effect="drop"}}</code></pre>
 
           <div class="fragment">
-            <p>...or maybe</p>
+            <p>...or by view</p>
             <pre><code data-trim class="javascript">
-App.MyAnimatedContainer.defineTransition({
+MyAnimatedContainer.defineTransition({
   from: 'some-parent-view',
   to: 'some-child-view',
   effect: 'slideLeft',
   duration: 500
 });
 
-App.MyAnimatedContainer.defineTransition({
+MyAnimatedContainer.defineTransition({
   from: 'some-child-view',
   to: 'some-parent-view',
   effect: 'slideRight',
@@ -309,9 +358,12 @@ App.MyAnimatedContainer.defineTransition({
 })
             </code></pre>
           </div>
-        
+
 
           <aside class="notes">
+            <p>Before discussing some of the gotchas, let's add features!</p>
+            <p>Whole container: We could control the animation effect on the whole container - every view is given the same treatment. Reasonable choice for many cases</p>
+            <p>By view: Alternately we could register view-to-view "state transitions"</p>
           </aside>
         </section>
 
@@ -321,15 +373,15 @@ App.MyAnimatedContainer.defineTransition({
             <h2>Effects</h2>
           </header>
 
-          <p>...or</p>
+          <p>Delegate to child views...</p>
           <pre><code data-trim class="javascript">
 FadingView = Ember.Mixin.create({
-  dismiss: function() {
+  reveal: function() {
     var self = this;
     return new Ember.RSVP.Promise( function(resolve, reject) {
       self.$().hide().fadeIn(500, resolve);
     });
-  }
+  },
   dismiss: function() {
     var self = this;
     return new Ember.RSVP.Promise( function(resolve, reject) {
@@ -342,180 +394,92 @@ MyAlertModal = Ember.View.extend( FadingView, { /* ... */ });
           </code></pre>
 
           <aside class="notes">
-          </aside>
-        </section>
-
-
-        <section>
-          <header>
-            <h2>Collections</h2>
-          </header>
-      
-          <p>Instead of animating <code class="darken">currentView</code>, animate all the views!</p>
-          <br>
-          <p>Override CollectionView's <code class="darken">arrayWillChange</code> and <code class="darken">arrayDidChange</code></p>
-              
-          <aside class="notes">
+            <p>Delegate: Take the effects out of the container and let the child views themselves handle reveal/dismiss while communicating effect completion with promises (although this still requires style-coordination between incoming and outgoing views, e.g. layout)</p>
           </aside>
         </section>
 
         <section>
           <header>
-            <h2>Collections</h2>
+            <h2>Effects</h2>
           </header>
-          
-          <a class="jsbin jsbin-embed" href="http://jsbin.com/AKuYOKO/3/embed?live,javascript&height=400px">Edit this example</a>
+
+          <p>...or CSS3 Transitions</p>
+          <table>
+            <thead>
+              <tr>
+                <td>Enter / Leave</td><td>Start</td><td>During</td>
+              </tr>
+            </thead>
+            <tr>
+              <td>Enter</td><td><pre>.em-animate .em-enter</pre></td><td><pre>.em-enter-active</pre></td>
+            </tr>
+            <tr>
+              <td>Leave</td><td><pre>.em-animate .em-leave</pre></td><td><pre>.em-leave-active</pre></td>
+            </tr>
+          </table>
 
           <aside class="notes">
+            <p>CSS3: Take an Angular ng-animate approach and use css classes for animation setup and execution - my preferred approach. The details of the effect are entirely captured in CSS, nothing in JS.</p>
           </aside>
         </section>
 
+
+        <section>
+          <h2>Caveats and Gotchas</h2>
+          <h4>not quite production ready yet...</h4>
+          <ul>
+            <li class="fragment">Container Destruction: <span class="darken">Animations could interact with destroyed views</span></li>
+            <li class="fragment">Animation Queues: <span class="darken">Jump to the end of active animation when a second is triggered</span></li>
+            <li class="fragment">Initial State: <span class="darken">How should view / collection items that start in container be handled?</span></li>
+          </ul>
+
+          <aside class="notes">
+            <ul>
+              <li>Container Destruction: If the container is destroyed during an animation it will short circuit the child view destruction. When the animation complete timeout fires both the container and the child view are destroyed. Need to guard.</li>
+              <li>Animation Queues: Without this you get the effect as we saw earlier with several views animating at once. Canceling can be a pain using CSS3 transitions</li>
+              <li>Initial State: Initial view contents should probably not animate in. Adding views in arrayDidChange should check to see if container is on the DOM yet and if not, don't animate children in.</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <h2>Caveats and Gotchas</h2>
+          <h4>not quite production ready yet...</h4>
+          <ul>
+            <li>Deferred destruction: <span class="darken">Two views on the DOM at once, active bindings</span></li>
+            <li class="fragment">Performance: <span class="darken">Child view creation can cause major jitter in the animation</span></li>
+            <li class="fragment">Same route, new data: <span class="darken">Route's view is reused so no animation</span></li>
+          </ul>
+
+          <aside class="notes">
+            <ul>
+              <li>Deferred destruction: Often not an issue but could be. For example, a 3rd party plugin that expects only to be in the DOM once, such as a commenting widget. Also, the view being dismissed still has active bindings which, depending on your app design, could mean it changes as it animates out to reflect new app state.</li>
+              <li>Performance: If the inbound view contains an iframe that must then load, the animation will stutter terribly. This may necessitate a whole new set of lifecycle signals around animation (didStart, didComplete, didCancel, etc)</li>
+              <li>Same route, new data: Ember reuses the same route view if the model for the route changes but the view/controller class does not. As such no transition between states will occur. This is not a trivial problem to solve as @ghedamat can attest!</li>
+            </ul>
+          </aside>
+        </section>
 
         <section>
           <h2>Wrapping Up</h2>
           <ul>
-            <li>Manipulating view lifecycle in a ContainerView is easy...but it means overwriting existing functions</li>
-            <li>This approach means the Container will <em>always</em> animate (back button!)</li>
-            <li>Use CSS 3 transitions</li>
+            <li class="fragment">Manipulating view lifecycle in a ContainerView can be easy...</li>
+            <li class="fragment">...but it means overwriting existing functions, copy pasta</li>
+            <br />
+            <li class="fragment">Adding animation to your Ember app can be easy...</li>
+            <li class="fragment">...but animation as part of the Ember is not trivial</li>
           </ul>
+          <footer class="fragment">
+            Robust view lifecycle with deferred support in Ember core &rarr; implement animation support with better building blocks
+          </footer>
         </section>
 
         <section>
           <h1>That's It</h1>
           <footer>
-            <a href="">Follow me on Twitter</a>
+            <small><a href="http://robharper.ca/ember-on-mobile/animation.html">http://robharper.ca/ember-on-mobile/animation.html</a></small>
           </footer>
         </section>
-
-
-
-
-        <!--
-        <section>
-          <h2>Use Ember.js to create native app-like...</h2>
-          <ol>
-            <li class="fragment">
-              Interaction
-              <ul class="darken">
-                <li>Responsiveness</li>
-                <li>Animation</li>
-              </ul>
-            </li>
-            <li class="fragment">
-              Performance
-              <ul class="darken">
-                <li>Screaming Crowd</li>
-                <li>View Soup</li>
-                <li>Run Loop</li>
-                <li>Forced Layouts</li>
-              </ul>
-            </li>
-          </ol>
-        </section>
-
-        <section>
-
-          <section>
-            <h2>Interaction: Touch</h2>
-
-            <p>The problem with click...</p>
-            <div class="example">
-              <span class="button" id="click-example-src">Touch Me</span>
-              <span class="button" id="click-example-dest">Click fired</span>
-              <p><small id="click-example-simulated">*simulated on non-touch device</small></p>
-            </div>
-            <p>...click event lags finger by ~300ms <small>1</small></p>
-
-            <footer>
-              <small>1 <a href="https://developers.google.com/mobile/articles/fast_buttons">Google Fast Buttons</a></small>
-            </footer>
-
-            <script>
-            if ('touchstart' in window) {
-              $('#click-example-simulated').hide();
-              $('#click-example-src')
-              .on('touchstart', function() {
-                $('#click-example-src').toggleClass('alt')
-              })
-              .on('click', function() {
-                $('#click-example-dest').toggleClass('alt')
-              });
-            } else {
-              $('#click-example-src')
-              .on('mousedown', function() {
-                $('#click-example-src').toggleClass('alt')
-                setTimeout(function() {
-                  $('#click-example-dest').toggleClass('alt')
-                }, 300);
-              })
-            }
-            </script>
-          </section>
-
-          <section>
-            <h2>The "<code>tap</code>" event</h2>
-            <ul class="fragment">
-              <li>FastClick - <a href="https://github.com/ftlabs/fastclick">ftlabs/fastclick</a></li>
-              <li>jQueryMobile vMouse - <a href="https://github.com/jquery/jquery-mobile/blob/master/js/jquery.mobile.vmouse.js">jquery/jquery-mobile</a></li>
-              <li>Hammer.js - <a href="http://eightmedia.github.io/hammer.js/">eightmedia/hammer.js</a></li>
-            </ul>
-          </section>
-
-          <section>
-            <pre><code data-trim>
-                &lt;a {{action 'doSomething' on='tap'}}>Tap me&lt;/a>
-            </code></pre>
-            <pre><code data-trim class="javascript">
-Ember.LinkView.reopen({
-  eventName: 'tap'
-});
-            </code></pre>
-          </section>
-
-          <section>
-            <h2>But...</h2>
-            <ul class="fragment">
-              <li>Preventing native click</li>
-              <li>Synthetic clicks</li>
-              <li>Gesture interactions</li>
-              <li>Tap to stop scroll</li>
-              <li>Desktop</li>
-              <li>...more</li>
-            </ul>
-            <footer class="fragment">Why is this so hard?</footer>
-
-            <aside class="notes">
-              <ul>
-                <li>Preventing native click - hammer.js leaves follow-on click up to you. If tap dismisses ui (e.g. a modal close) the follow-on click event can land in whatever UI is revealed underneath.</li>
-                <li>Synthetic clicks - many browsers won't open tabs to external links if triggered by generated click event. WinPhone relies on "long-press" for open in new tab</li>
-                <li>Gesture interactions - Complex statemachine interaction can arise between tap and other gestures. Two finger tap, swipe, etc.</li>
-                <li>Tap to stop scroll - Shouldn't trigger a virtual click, should only stop scroll.</li>
-                <li>Desktop - Does your simulated tap gesture play will when no touch events exist?</li>
-                <li>More - Windows Phone, oh boy...</li>
-              </ul>
-            </aside>
-          </section>
-
-
-
-          <section>
-            <h2>Ember can help</h2>
-            <p>Alias when 'tap' is reliable</p>
-            <pre><code class="javascript">
-if (canDependOnTapBehaviour) {
-  // Do something
-  Ember.EventDispatcher.reopen({
-    events: {
-      // All events you wish to handle...
-      // click: 'click'
-      tap: 'click'
-    }
-  });
-}
-            </code></pre>
-          </section>
-      </section>
-    -->
 
 
       </div>
