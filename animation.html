@@ -44,8 +44,10 @@
       <div class="slides">
 
         <section>
-          <h1>Animating Ember</h1>
-          <h3>From the beginning</h3>
+          <header>
+            <h1>Animating Ember</h1>
+            <h3>From the beginning</h3>
+          </header>
           <p>
             <small><a href="http://github.com/robharper">Rob Harper</a> / <a href="http://twitter.com/rdharper">@rdharper</a></small>
           </p>
@@ -53,6 +55,7 @@
             <small>Jan 9, 2014</small>
           </p>
           <a href="http://www.pressly.com"><img class="bare" src="http://d1tv73z3fnbnfg.cloudfront.net/Pressly-logo-small.png"></a>
+
           <footer class="darken">Press <code>s</code> to see presentation notes</footer>
         </section>
 
@@ -435,11 +438,9 @@ MyAlertModal = Ember.View.extend( FadingView, { /* ... */ });
           <h2>Caveats and Gotchas</h2>
           <h4>not quite production ready yet...</h4>
           <ul>
-            <li>Container Destruction: <span class="darken">Active animations will interact with destroyed views</span></li>
-            <li>Animation Queues: <span class="darken">Cancel active animation when a second is triggered</span></li>
-            <li>Initial State: <span class="darken">How should view / collection items that start in container be handled?</span></li>
-            <li>Deferred destruction: <span class="darken">Two views on the DOM at once</span></li>
-            <li>Performance: <span class="darken">Child view creation can cause reveal animation to be choppy</span></li>
+            <li class="fragment">Container Destruction: <span class="darken">Animations could interact with destroyed views</span></li>
+            <li class="fragment">Animation Queues: <span class="darken">Cancel active animation when a second is triggered</span></li>
+            <li class="fragment">Initial State: <span class="darken">How should view / collection items that start in container be handled?</span></li>
           </ul>
 
           <aside class="notes">
@@ -447,23 +448,46 @@ MyAlertModal = Ember.View.extend( FadingView, { /* ... */ });
               <li>Container Destruction: If the container is destroyed during an animation it will short circuit the child view destruction. When the animation complete timeout fires both the container and the child view are destroyed. Need to guard.</li>
               <li>Animation Queues: Without canceling you get the effect as we saw earlier with several views animating at once. Canceling can be a pain using CSS3 transitions</li>
               <li>Initial State: Initial view contents should probably not animate in. Adding views in arrayDidChange should check to see if container is on the DOM yet and if not, don't animate children in.</li>
-              <li>Deferred destruction: Often not an issue but could be. For example, a 3rd party plugin that expects only to be in the DOM once, such as a commenting widget.</li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <h2>Caveats and Gotchas</h2>
+          <h4>not quite production ready yet...</h4>
+          <ul>
+            <li>Deferred destruction: <span class="darken">Two views on the DOM at once, active bindings</span></li>
+            <li class="fragment">Performance: <span class="darken">Child view creation can cause major jitter in the animation</span></li>
+            <li class="fragment">Same route, new data: <span class="darken">Route's view is reused so no animation</span></li>
+          </ul>
+
+          <aside class="notes">
+            <ul>
+              <li>Deferred destruction: Often not an issue but could be. For example, a 3rd party plugin that expects only to be in the DOM once, such as a commenting widget. Also, the view being dismissed still has active bindings which, depending on your app design, could mean it changes as it animates out to reflect new app state.</li>
               <li>Performance: If the inbound view contains an iframe that must then load, the animation will stutter terribly. This may necessitate a whole new set of lifecycle signals around animation (didStart, didComplete, didCancel, etc)</li>
+              <li>Same route, new data: Ember reuses the same route view if the model for the route changes but the view/controller class does not. As such no transition between states will occur. This is not a trivial problem to solve as @ghedamat can attest!</li>
+            </ul>
+          </aside>
         </section>
 
         <section>
           <h2>Wrapping Up</h2>
           <ul>
-            <li>Manipulating view lifecycle in a ContainerView is easy...but it means overwriting existing functions</li>
-            <li>This approach means the Container will <em>always</em> animate (back button!)</li>
-            <li>Use CSS 3 transitions</li>
+            <li class="fragment">Manipulating view lifecycle in a ContainerView can be easy...</li>
+            <li class="fragment">...but it means overwriting existing functions, copy pasta</li>
+            <br />
+            <li class="fragment">Adding all sorts of animation to your Ember app can be easy...</li>
+            <li class="fragment">...but framework support is not trivial</li>
           </ul>
+          <footer class="fragment">
+            Robust view lifecycle with deferred support in Ember core &rarr; implement animation support with better building blocks
+          </footer>
         </section>
 
         <section>
           <h1>That's It</h1>
           <footer>
-            <a href="">Follow me on Twitter</a>
+            <small><a href="http://robharper.ca/ember-on-mobile/animation.html">http://robharper.ca/ember-on-mobile/animation.html</a></small>
           </footer>
         </section>
 
